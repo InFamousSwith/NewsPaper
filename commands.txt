@@ -1,0 +1,69 @@
+from django.contrib.auth.models import User
+from news.models import Author, Category, Post, PostCategory, Comment
+user_1 = User.objects.create_user('user_1')
+user_2 = User.objects.create_user('user_2')
+author_1 = Author.objects.create(user=user_1)
+author_2 = Author.objects.create(user=user_2)
+
+category_music = Category.objects.create(name='музыка')
+category_politics = Category.objects.create(name='Политика')
+category_sport = Category.objects.create(name='Спорт')
+category_movies = Category.objects.create(name='Фильмы')
+
+article_user_1_sport = Post.objects.create(author=author_1, post=Post.article, title='О спорте пользователь 1', text='спорт пользователь 1 спорт пользователь 1 спорт пользователь 1 спорт пользователь 1 спорт пользователь 1 спорт пользователь 1')
+article_user_2_music = Post.objects.create(author=author_2, post=Post.article, title='О музыке пользователь 2', text='музыкапользователь 2 музыка пользователь 2 музыка пользователь 2 музыка пользователь 2 музыка пользователь 2 музыка пользователь 2')
+news_user_2_movies = Post.objects.create(author=author_2, post=Post.news, title='О фильмах пользователь 2', text='фильмы пользователь 2 фильмы пользователь 2 фильмы пользователь 2 фильмы пользователь 2 фильмы пользователь 2 фильмы пользователь 2')
+PostCategory.objects.create(post=article_user_1_sport, category=category_sport)
+PostCategory.objects.create(post=article_user_1_sport, category=category_music)
+PostCategory.objects.create(post=article_user_2_music, category=category_music)
+PostCategory.objects.create(post=news_user_2_movies, category=category_movies)
+
+comment1=Comment.objects.create(post=article_user_1_sport,user=author_2.user, text='Комментарий пользователя 2 к статье пользователя 1')
+comment1=Comment.objects.create(post=article_user_2_music,user=author_1.user, text='Комментарий пользователя 1 к статье пользователя 2')
+comment1=Comment.objects.create(post=article_user_2_music,user=author_1.user, text='Второй Комментарий пользователя 1 к статье пользователя 2')
+#Сделал ошибку, название переменных одно и то же, но в дальнейшем искал нужный комментарий по id#
+comment3=Comment.objects.create(post=news_user_2_movies,user=author_1.user, text=' Комментарий пользователя 1 к новости пользователя 2')
+comment4=Comment.objects.create(post=news_user_2_movies,user=author_1.user, text=' Второй комментарий пользователя 1 к новости пользователя 2')
+
+for i in range(5):
+...     comment3.like()
+
+for i in range(7):
+...     comment4.like()
+
+for i in range(15):
+...     comment1.like()
+
+for i in range(3):
+...     Comment.objects.get(id=1).like()
+
+for i in range(2):
+...     Comment.objects.get(id=2).like()
+
+
+for i in range(20):
+...     article_user_1_sport.like()
+
+for i in range(17):
+...     article_user_2_music.like()
+
+for i in range(34):
+...     news_user_2_movies.like()
+
+rating_author1=(sum([post.rating*3 for post in Post.objects.filter(author=author_1)])+sum([com.rating for com in Comment.objects.filter(user=author_1.user)])+sum([coms.rating for coms in Comment.objects.filter(post__author=author_1)]))
+author_1.update_rating(rating_author1)
+
+rating_author2=(sum([post.rating*3 for post in Post.objects.filter(author=author_2)])+sum([com.rating for com in Comment.objects.filter(user=author_2.user)])+sum([coms.rating for coms in Comment.objects.filter(post__author=author_2)]))
+author_2.update_rating(rating_author2)
+
+best_author = Author.objects.all().order_by('-rating')[0]
+print(best_author.user.username, best_author.rating)
+
+best_article = Post.objects.filter(post=Post.article).order_by('-rating')[0]
+print(best_article.time_in, best_article.author.user.username, best_article.rating, best_article.title, best_article.preview())
+
+for com in Comment.objects.filter(post=best_article):
+     print(com.time_in, com.user, com.rating, com.text)
+
+
+
